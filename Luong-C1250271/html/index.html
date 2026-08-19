@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>SALARY COFFEE</title>
+</head>
+<body bgcolor="#FFFFCC">
+    <table border="0" width="100%">
+        <tr>
+            <td>
+    <img src="../images/logo.png" alt="Logo" width="90" height="90"></td>
+    <td>
+    <h1 align="center">SALARY COFFEE - NƠI BÌNH YÊN VÀ THƯ GIẢN</h1>
+    </td>
+</tr>
+    <tr align="center">
+        <td>    
+        </td>
+        <td >
+    <p><i>"Ghé một chút – Uống một tách – Chill một ngày"</i></p>
+    </td>
+    <tr align="center">
+      <td>
+      </td>
+    <td>
+    <a name="trangchu"></a>
+    <p>
+        <a href="#trangchu">Trang chủ</a> | 
+        <a href="#gioithieu">Giới thiệu</a> | 
+        <a href="#thucdon">Thực đơn</a> | 
+        <a href="#menu">Menu</a> | 
+        <a href="#datban">Đặt bàn</a> | 
+        <a href="#lienhe">Liên hệ</a>
+    </p>
+    </td>
+    </tr>
+</tr>
+    </table>
+<table border="0" width="100%" cellpadding="10" cellspacing="0">
+    <tr>
+        <td width="72%">
+          <a name="gioithieu"></a>
+            <h3>GIỚI THIỆU QUÁN</h3>
+            <table border="0" width="100%" cellpadding="5" cellspacing="0">
+                <tr>
+                    <td width="45%">
+                        <img src="../images/quan.png" alt="quán" width="100%">
+                    </td>
+                    <td width="55%">
+                        <p>
+                            SALARY COFFEE – một góc nhỏ dành cho những ngày cần một chút bình yên. Nơi bạn có thể nhâm nhi một tách cà phê, nghe một bản nhạc và tạm quên đi những vội vã ngoài kia. Mỗi góc ngồi tại SALARY COFFEE được tạo nên để bạn thoải mái trò chuyện, làm việc hoặc đơn giản là ngồi một mình. Hương cà phê, không gian nhẹ nhàng và những câu chuyện được kể chậm rãi qua từng khoảnh khắc. Ghé SALARY COFFEE, gọi một món bạn thích và dành cho mình một khoảng thời gian thật riêng.
+                        </p>
+                        <p>
+                            Quán sử dụng 100% hạt cà phê nguyên chất được tuyển chọn từ những vùng trồng cà phê nổi tiếng.
+                        </p>
+                        <p>
+                            Diện tích quán khoảng 120m² với sức chứa 80 khách.
+                        </p>
+                        <p>
+                            SALARY COFFEE luôn hướng đến việc giảm thiểu CO₂ , bảo vệ môi trường và phát triển bền vững.
+                            
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td width="1" bgcolor="#DDDDDD"></td>
+        <td width="27%" align="center">
+            <table border="0" width="100%" cellpadding="8" cellspacing="0">
+                <tr>
+                    <td align="center">
+                        <img src="../images/ly coffee.png" alt="Cà phê đá" width="200" height="300"><br>
+                        <small><b>Cà phê sữa đá</b></small>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">
+                        <img src="../images/khong gian quan.png" alt="Không gian quán" width="200" height="200"><br>
+                        <small><b>Không gian quán</b></small>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<a name="thucdon"></a>
+    <h2>Danh Sách Đồ Uống</h2>
+    <ol>
+        <li>Cà phê
+            <ul>
+                <li>Cà phê đen</li>
+                <li>Cà phê sữa</li>
+                <li>Bạc xỉu</li>
+            </ul>
+        </li>
+        <li>Trà
+            <ul>
+                <li>Trà đào</li>
+                <li>Trà vải</li>
+                <li>Trà chanh</li>
+            </ul>
+        </li>
+        <li>Nước ép
+            <ul>
+                <li>Nước cam</li>
+                <li>Nước dưa hấu</li>
+            </ul>
+        </li>
+    </ol>
+    <a name="menu"></a>
+<h2 align="center">---MENU---</h2>
+    <table border="1" cellspacing="0" cellpadding="8" width="100%">
+        <tr align="center" bgcolor="#CCCCCC">
+            <th>STT</th>
+            <th>Loại thức uống</th>
+            <th>Tên thức uống</th>
+            <th>Kích thước</th>
+            <th>Giá</th>
+        </tr>
+        <tr>
+            <td align="center" rowspan="3">1</td>
+            <td rowspan="3">Cà phê</td>
+            <td rowspan="1">Cà phê đen</td>
+            <td align="center">Vừa-Lớn</td>
+            <td align="right">25.000-30.000</td>
+        </tr>
+        <tr>
+            <td rowspan="1">Cà phê sữa</td>
+            <<td align="center">Vừa-Lớn</td>
+            <td align="right">25.000-30.000</td>
+        </tr>
+        <tr>
+            <td>Bạc xỉu </td>
+            <td align="center">Vừa-Lớn</td>
+            <td align="right">28.000-33.000</td>
+        </tr>
+        <tr>
+            <td align="center" rowspan="3">2</td>
+            <td rowspan="3">Trà</td>
+            <td>Trà đào</td>
+            <td align="center">Vừa-Lớn</td>
+            <td align="right">25.000-30.000</td>
+        </tr>
+        <tr>
+            <td>Trà vải</td>
+            <td align="center">Vừa-Lớn</td>
+            <td align="right">25.000-30.000</td>
+        </tr>
+        <tr>
+            <td>Trà Chanh</td>
+            <td align="center">Vừa-Lớn</td>
+            <td align="right">25.000-30.000</td>
+        </tr>
+        <tr>
+            <td align="center" rowspan="3">3</td>
+            <td rowspan="3">Latte</td>
+            <td>Matcha Latte</td>
+            <td align="center">Vừa-Lớn</td>
+            <td align="right">35.000-40.000</td>
+        </tr>
+        <tr>
+            <td>Vanilla Latte</td>
+            <td align="center">Vừa-Lớn</td>
+            <td align="right">35.000-40.000</td>
+        </tr>
+        <tr>
+            <td>Vanilla Latte</td>
+            <td align="center">Vừa-Lớn</td>
+            <td align="right">35.000-40.000</td>
+    </table>
+    <p>
+         <a href="../images/thuc don.png" download>click để tải thực đơn về máy tính</a>
+    </p>
+    <table border="1" cellspacing="0" cellpadding="10" width="100%">
+        <tr>
+        <td  align="center">
+        <h2>Nhạc Nền Thư Giãn</h2>
+       <p>Nhạc nền quán:</p>
+    <audio controls>
+        <source src="../mp3/nhac.mp3" type="audio/mpeg">
+        </td>
+    </audio>
+        <td  align="center">
+    <h2>Video Quán</h2>
+        <iframe width="411" height="731" src="https://www.youtube.com/embed/iLLf48xaRAk" title="Nhạc Quán Cafe Không Bản Quyền ☕ Nhạc Nền Cho Quán &amp; Kinh Doanh" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </td> 
+                <td align="center">
+                  <h3>click vào hình để xem video không gian quán</h3>
+        <a href="https://youtu.be/17Uvfvq876g?si=qHXSOtY4B117F34O" target="_blank">
+           <img src="../images/khong gian quan.png" alt="Không gian quán" width="300" height="200"class="img-border">
+        </a>
+                </td>
+        </tr>
+    </table>
+    <a name="datban"></a>
+        <h3 align="center">PHIẾU ĐẶT BÀN TRỰC TUYẾN
+            </h3>
+              <table border="0" width="100%" cellpadding="8" cellspacing="0">
+                <tr>
+                  <td width="30%">
+                    <label for="fullName"><b>Họ và tên:</b></label>
+                  </td>
+                  <td width="70%">
+                    <input
+                      type="text"
+                      id="fullName"
+                      name="fullName"
+                      placeholder="Nhập họ và tên"
+                      style="width: 80%; padding: 5px" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="phoneNumber"><b>Số điện thoại:</b></label>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      placeholder="Nhập số điện thoại"
+                      style="width: 80%; padding: 5px"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="Date"><b>Ngày & Giờ đến:</b></label>
+                  </td>
+                  <td>
+                    <input
+                      type="datetime-local"
+                      id="Date"
+                      name="Date"
+                      style="padding: 5px"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="guestCount"><b>Số lượng khách:</b></label>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      id="guestCount"
+                      name="guestCount"
+                      min="1"
+                      max="50"
+                      value="1"
+                      style="width: 80px; padding: 5px"/>
+                    người
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Khu vực ngồi:</b></td>
+                  <td>
+                    <input
+                      type="radio"
+                      id="indoor"
+                      name="seating"
+                      value="Trong nhà"
+                      checked/>
+                    <label for="indoor"> Trong nhà</label> &nbsp;
+                    <input
+                      type="radio"
+                      id="outdoor"
+                      name="seating"
+                      value="Sân vườn"/>
+                      <label for="outdoor"> Sân vườn</label> &nbsp;
+                    <input
+                      type="radio"
+                      id="maylanh"
+                      name="seating"
+                      value="Phòng máy lạnh"/>
+                      <label for="maylanh"> Phòng máy lạnh</label> &nbsp;
+                    <input
+                      type="radio"
+                      id="vip"
+                      name="seating"
+                      value="Phòng máy lạnh"/>
+                      <label for="vip"> Phòng VIP</label>
+                  </td>
+                </tr>
+                <tr>
+                  <td valign="top">
+                    <label for="dishes"><b>Chọn món trước:</b></label>
+                  </td>
+                  <td>
+                    <select
+                      id="dishes"
+                      name="dishes"
+                      size="5"
+                      multiple
+                      style="width: 85%; padding: 5px">
+
+                       <optgroup label="--- Đồ uống ---"
+                        name="do-uong" style="width: 100%; padding: 8px;">
+                        <option value="">-- Chọn đồ uống --</option>
+                        <option value="cp-coffe">Cà phê đen Size Vừa (25000)</option>
+                        <option value="cp-coffe">Cà phê đen Size Lớn (30000)</option>
+                        <option value="cp-coffe">Cà phê sữa Size Vừa (25000)</option>
+                        <option value="cp-coffe">Cà phê sữa Size Lớn (30000)</option>
+                        <option value="cp-coffe">Bạc xỉu Size Vừa (28000)</option>
+                        <option value="cp-coffe">Bạc xỉu Size Lớn (33000)</option>
+                        <option value="tra-dao">Trà đào Size Vừa (25000)</option>
+                        <option value="tra-dao">Trà đào Size Lớn (30000)</option>
+                        <option value="tra-vai">Trà vải Size Vừa (25000)</option>
+                        <option value="tra-vai">Trà vải Size Lớn (30000)</option>
+                        <option value="tra-chanh">Trà chanh Size Vừa (25000)</option>
+                        <option value="tra-chanh">Trà chanh Size Lớn (30000)</option>
+                        <option value="matcha-latte">Matcha Latte Size Vừa (35000)</option>
+                        <option value="matcha-latte">Matcha Latte Size Lớn (40000)</option>
+                        <option value="vanilla-latte">Vanilla Latte Size Vừa (35000)</option>
+                        <option value="vanilla-latte">Vanilla Latte Size Lớn (40000)</option>
+                        <option value="caramel-latte">Caramel Latte Size Vừa (35000)</option>
+                        <option value="caramel-latte">Caramel Latte Size Lớn (40000)</option>
+                        </optgroup>
+                    </select>
+                    <br /><small style="color: #666"
+                      >*(Giữ phím <b>Ctrl</b> để chọn nhiều món cùng
+                      lúc)*</small>
+                  </td>
+                </tr>
+                <tr>
+                  <td valign="top">
+                    <label for="note"><b>Ghi chú thêm:</b></label>
+                  </td>
+                  <td>
+                    <textarea
+                      id="note"
+                      name="note"
+                      rows="3"
+                      style="width: 85%; padding: 5px"
+                      placeholder="Yêu cầu thêm">
+                    </textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" align="center" style="padding-top: 15px">
+                    <input
+                      type="submit"
+                      value="XÁC NHẬN ĐẶT BÀN"
+                      onclick=" alert('Đơn đặt bàn của bạn đã được gửi thành công!')"
+                      style="
+                        background-color: #4a2306;
+                        color: white;
+                        padding: 10px 25px;
+                        border: none;
+                        font-weight: bold;
+                        cursor: pointer;
+                        border-radius: 4px;"/>
+                    <input
+                      type="reset"
+                      value="Nhập lại"
+                      style="
+                        padding: 10px 15px;
+                        margin-left: 10px;
+                        cursor: pointer;"/>
+                  </td>
+                </tr>
+              </table>
+    <div align="center">
+      <a name="lienhe"></a>
+        <h3>SALARY COFFEE</h3>
+        <p>
+          <a href="https://www.highlandscoffee.com.vn/" target="_blank">WEBSITE QUÁN</a><br>
+            Địa chỉ: 123 CAO LÃNH , Đồng Tháp<br>
+            Điện thoại: 0835 XXX XXX<br>
+            Email: luong26082007@gmail.com
+        </p>
+    </div>
+</body>
+</html>
