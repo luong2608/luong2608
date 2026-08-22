@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Blender: Hành Trình Rừng Thiêng</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #111; overflow: hidden; }
+        #game-wrapper {
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #0b140d;
+        }
+        canvas {
+            border: 4px solid #2d5a27; box-shadow: 0 0 20px #000;
+            background-color: #89cf96; image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <canvas id="gameCanvas" width="900" height="500"></canvas>
+</div>
+
+<script>
+(function() {
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    // --- HỆ THỐNG ÂM THANH (WEB AUDIO API - 8-BIT STYLE) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        // Đảm bảo AudioContext được resume khi có tương tác người dùng
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'coin') {
+            // Tiếng ting ting nhặt vàng
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1000, now);
+            osc.frequency.exponentialRampToValueAtTime(1500, now + 0.1);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        } else if (type === 'key') {
+            // Tiếng chuông ma thuật 3 nhịp
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.setValueAtTime(800, now + 0.1);
+            osc.frequency.setValueAtTime(1200, now + 0.2);
+            gainNode.gain.setValueAtTime(0.15, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'chest') {
+            // Tiếng mở rương trầm ấm
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(600, now + 0.3);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
+            osc.start(now); osc.stop(now + 0.4);
+        }
+    }
+
+    const BG_IMAGE_URL = "";
+    let bgImg = null;
+
+    // --- CẤU HÌNH VẬT LÝ NÂNG CAO ---
+    const GRAVITY = 0.45;
+    const FRICTION = 0.82;
+    let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false };
+
+    // --- TRẠNG THÁI TRÒ CHƠI ---
+    let currentLevel = 1;
+    let score = 0;
+    let lives = 5;
+let gameOver = false;
+    let gameWon = false;
+
+    let particles = []; let scenery = [];
+
+    // --- NHÂN VẬT TIME BLENDER ---
+    let player = {
+        x: 50, y: 200, width: 28, height: 42,
+        vx: 0, vy: 0, speed: 5, jumpForce: 10.5,
+        grounded: false, facing: "right", canDoubleJump: false
+    };
+
+    // --- VẬT PHẨM GIẢI ĐỐ ---
+    let levelKey = { x: 0, y: 0, w: 18, h: 18, collected: false, anim: 0 };
+    let chest = { x: 0, y: 0, w: 32, h: 24, opened: false };
+    let endGate = { x: 0, y: 0, w: 40, h: 60 };
+
+    const mapData = {
+        1: { map: "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP", monsters: [{type: 'frog', x: 400}], coins: [250, 450], spikes: [550], keyX: 350, chestX: 650, endX: 820 },
+        2: { map: "PPPPPPPPPPPHHPPPPPPPPPPPHHPPPPPPPPPPPPPPP", monsters: [{type: 'boar', x: 300}], coins: [180, 500, 650], spikes: [420], keyX: 550, chestX: 200, endX: 820 },
+        3: { map: "PPPPPHHPPPPHHPPPPHHPPPPHHPPPPPPPPPPPPPPPP", monsters: [{type: 'boar', x: 550}], coins: [300, 480], spikes: [360, 650], keyX: 410, chestX: 700, endX: 820 },
+        4: { map: "PPPPPPPPPPPHHHHHHHHHHHPPPPPPPPPPPPPPPPPPP", monsters: [{type: 'golem', x: 600}], coins: [200, 750], spikes: [250], keyX: 450, chestX: 520, endX: 820 },
+        5: { map: "PPPPHHPPPPHHPPPPHHPPPPHHPPPPHHPPPPPPPPPPP", monsters: [{type: 'frog', x: 380}, {type: 'golem', x: 680}], coins: [150, 420, 680], spikes: [280, 560], keyX: 480, chestX: 600, endX: 820 },
+        6: { map: "PPHHHHHHPPPHHHHHHPPPHHHHHHPPPPPPPPPPPPPPP", monsters: [{type: 'golem', x: 300}], coins: [260, 700], spikes: [510], keyX: 470, chestX: 750, endX: 820 },
+        7: { map: "PPPPPHHHHHHHHHHHHHHHHHHHHHHPPPPPPPPPPPPPP", monsters: [{type: 'boar', x: 150}, {type: 'golem', x: 700}], coins: [220], spikes: [650], keyX: 680, chestX: 80, endX: 820 },
+        8: { map: "PPHHMPPHHMPPHHMPPHHMPPHHMPPHHPPPPPPPPPPPP", monsters: [{type: 'frog', x: 160}, {type: 'boar', x: 380}], coins: [550, 650], spikes: [460], keyX: 500, chestX: 250, endX: 820 },
+        9: { map: "PHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHP", monsters: [{type: 'frog', x: 450}], coins: [300, 500], spikes: [], keyX: 420, chestX: 200, endX: 820 },
+        10: { map: "PHMPHMPHMPHMPHMPHMPHMPHMPHMPHMPHHHHHHHHPP", monsters: [{type: 'boar', x: 180}, {type: 'golem', x: 450}], coins: [350], spikes: [260, 380, 480], keyX: 540, chestX: 650, endX: 840 }
+    };
+
+    let platforms = []; let monsters = []; let coins = []; let spikes = [];
+
+    // --- ĐIỀU KHIỂN & NHẢY ĐÚP ---
+    window.addEventListener("keydown", function(e) {
+        if(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
+            e.preventDefault();
+        }
+        if (e.code === "ArrowUp") {
+            if (audioCtx.state === 'suspended') audioCtx.resume(); // Bật âm thanh nếu bị block
+            if (player.grounded) {
+                player.vy = -player.jumpForce; player.grounded = false; player.canDoubleJump = true;
+} else if (player.canDoubleJump) {
+                player.vy = -player.jumpForce * 0.9; player.canDoubleJump = false;
+                createParticles(player.x + 14, player.y + 40, "#fff", 10);
+            }
+        }
+        if (keys.hasOwnProperty(e.code)) keys[e.code] = true;
+    }, {passive: false});
+    window.addEventListener("keyup", e => { if (keys.hasOwnProperty(e.code)) keys[e.code] = false; });
+
+    function initLevel(lvl) {
+        platforms = []; monsters = []; coins = []; spikes = []; scenery = [];
+        player.x = 50; player.y = 150; player.vx = 0; player.vy = 0;
+        levelKey.collected = false; chest.opened = false;
+
+        let data = mapData[lvl];
+        let tileSize = 22;
+
+        for (let i = 0; i < data.map.length; i++) {
+            if (data.map[i] === 'P') {
+                platforms.push({ x: i * tileSize, y: 400, w: tileSize, h: 100 });
+                if (Math.random() < 0.5) {
+                    scenery.push({
+                        x: i * tileSize + Math.random()*10, y: 400,
+                        type: Math.random() < 0.3 ? 'flower' : (Math.random() < 0.5 ? 'bush' : 'grass')
+                    });
+                }
+            }
+        }
+
+        data.spikes.forEach(sx => spikes.push({ x: sx, y: 370, w: 30, h: 30 }));
+        data.monsters.forEach(m => {
+            let w = 26, h = 24; if (m.type === 'golem') { w = 40; h = 46; }
+            monsters.push({
+                type: m.type, x: m.x, y: 400 - h, w: w, h: h,
+                speed: m.type === 'golem' ? 0.6 : (m.type === 'boar' ? 1.8 : 1.2),
+                dir: 1, minX: m.x - 80, maxX: m.x + 80
+            });
+        });
+
+        data.coins.forEach(cx => coins.push({ x: cx, y: 300, w: 16, h: 16, active: true, anim: Math.random() * 5 }));
+        levelKey.x = data.keyX; levelKey.y = 290; chest.x = data.chestX; chest.y = 376; endGate.x = data.endX; endGate.y = 340;
+    }
+
+    function createParticles(x, y, color, count=8) {
+        for (let i = 0; i < count; i++) {
+            particles.push({ x: x, y: y, vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5, life: 1, color: color });
+        }
+    }
+
+    // --- XỬ LÝ LOGIC ---
+    function update() {
+        if (gameOver || gameWon) return;
+
+        if (keys.ArrowLeft) {
+            if (player.vx > -player.speed) player.vx -= 0.6; player.facing = "left";
+        } else if (keys.ArrowRight) {
+            if (player.vx < player.speed) player.vx += 0.6; player.facing = "right";
+        } else {
+            player.vx *= FRICTION;
+        }
+
+        player.vy += GRAVITY; let oldY = player.y; player.x += player.vx; player.y += player.vy;
+        if (player.x < 0) player.x = 0; if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+        player.grounded = false;
+
+        platforms.forEach(p => {
+            if (player.x + player.width > p.x && player.x < p.x + p.w &&
+                player.y + player.height > p.y && player.y < p.y + p.h) {
+if (oldY + player.height <= p.y + 8) {
+                    player.y = p.y - player.height; player.vy = 0; player.grounded = true;
+                }
+            }
+        });
+
+        if (player.y > canvas.height) handleDeath();
+        spikes.forEach(s => {
+            if (player.x + player.width > s.x+5 && player.x < s.x + s.w-5 && player.y + player.height > s.y+10 && player.y < s.y + s.h) handleDeath();
+        });
+
+        monsters.forEach(m => {
+            m.x += m.speed * m.dir; if (m.x < m.minX || m.x > m.maxX) m.dir *= -1;
+            if (player.x + player.width > m.x && player.x < m.x + m.w && player.y + player.height > m.y && player.y < m.y + m.h) handleDeath();
+        });
+
+        // XỬ LÝ NHẶT VẬT PHẨM & PHÁT ÂM THANH
+        coins.forEach(c => {
+            if (c.active && player.x + player.width > c.x && player.x < c.x + c.w && player.y + player.height > c.y && player.y < c.y + c.h) {
+                c.active = false; score += 10;
+                createParticles(c.x+8, c.y+8, "#ffeb3b");
+                playSound('coin'); // <-- Phát tiếng nhặt vàng
+            }
+        });
+
+        if (!levelKey.collected && player.x + player.width > levelKey.x && player.x < levelKey.x + levelKey.w && player.y + player.height > levelKey.y && player.y < levelKey.y + levelKey.h) {
+            levelKey.collected = true; score += 50;
+            createParticles(levelKey.x+8, levelKey.y+8, "#00e5ff", 15);
+            playSound('key'); // <-- Phát tiếng lấy chìa khóa
+        }
+
+        if (!chest.opened && player.x + player.width > chest.x && player.x < chest.x + chest.w && player.y + player.height > chest.y && player.y < chest.y + chest.h) {
+            chest.opened = true; score += 100;
+            createParticles(chest.x+16, chest.y+10, "#ffb703", 20);
+            playSound('chest'); // <-- Phát tiếng mở rương
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        if (player.x + player.width > endGate.x && player.x < endGate.x + endGate.w && player.y + player.height > endGate.y && player.y < endGate.y + endGate.h) {
+            if (levelKey.collected) {
+                if (currentLevel < 10) { currentLevel++; initLevel(currentLevel); } else { gameWon = true; }
+            }
+        }
+    }
+
+    function handleDeath() {
+        lives--; if (lives <= 0) gameOver = true; else { player.x = 50; player.y = 150; player.vx = 0; player.vy = 0; }
+    }
+
+    function restartGame() {
+        lives = 5; score = 0; currentLevel = 1; gameOver = false; gameWon = false; initLevel(currentLevel);
+    }
+
+    // --- MAIN RENDER ---
+    function draw() {
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+
+        // Vẽ rừng
+        let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+grad.addColorStop(0, "#a8e6cf"); grad.addColorStop(0.5, "#dcedc1"); grad.addColorStop(1, "#81b214");
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#3e2723"; ctx.fillRect(80, 100, 60, 300); ctx.fillRect(720, 80, 70, 320);
+        ctx.fillStyle = "#4e342e"; ctx.fillRect(110, 100, 30, 300); ctx.fillRect(750, 80, 40, 320);
+        ctx.fillStyle = "#1b5e20"; ctx.beginPath(); ctx.arc(100, -20, 150, 0, Math.PI*2); ctx.arc(450, -50, 180, 0, Math.PI*2); ctx.arc(800, -20, 160, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#2e7d32"; ctx.beginPath(); ctx.arc(100, -40, 130, 0, Math.PI*2); ctx.arc(450, -70, 150, 0, Math.PI*2); ctx.arc(800, -40, 140, 0, Math.PI*2); ctx.fill();
+
+        // Vẽ Cây cỏ
+        scenery.forEach(s => {
+            if(s.type === 'flower') {
+                ctx.fillStyle = "#4caf50"; ctx.fillRect(s.x, s.y-8, 4, 8);
+                ctx.fillStyle = "#ff4081"; ctx.fillRect(s.x-3, s.y-14, 10, 6);
+            } else if (s.type === 'bush') {
+                ctx.fillStyle = "#2e7d32"; ctx.beginPath(); ctx.arc(s.x+10, s.y, 14, 0, Math.PI*2); ctx.fill();
+            } else {
+                ctx.fillStyle = "#689f38"; ctx.fillRect(s.x, s.y-6, 2, 6); ctx.fillRect(s.x+4, s.y-4, 2, 4);
+            }
+        });
+
+        // Vẽ Đất
+        platforms.forEach(p => {
+            ctx.fillStyle = "#3e2723"; ctx.fillRect(p.x, p.y + 16, p.w, p.h - 16);
+            ctx.fillStyle = "#5d4037"; ctx.fillRect(p.x, p.y + 16, p.w/2, p.h - 16);
+            ctx.fillStyle = "#2e7d32"; ctx.fillRect(p.x, p.y, p.w, 16);
+            ctx.fillStyle = "#4caf50"; ctx.fillRect(p.x, p.y, p.w, 6);
+        });
+
+        // Vẽ Gai
+        spikes.forEach(s => {
+            ctx.fillStyle = "#9e9e9e"; ctx.beginPath(); ctx.moveTo(s.x, s.y+s.h); ctx.lineTo(s.x+s.w/2, s.y); ctx.lineTo(s.x+s.w, s.y+s.h); ctx.fill();
+            ctx.fillStyle = "#d32f2f"; ctx.beginPath(); ctx.moveTo(s.x+s.w/3, s.y+s.h/3); ctx.lineTo(s.x+s.w/2, s.y); ctx.lineTo(s.x+s.w*2/3, s.y+s.h/3); ctx.fill();
+        });
+
+        // Vẽ Tiền Vàng
+        coins.forEach(c => {
+            if (!c.active) return;
+            c.anim += 0.1; let scale = Math.abs(Math.sin(c.anim));
+            ctx.fillStyle = "#ffb703"; ctx.beginPath(); ctx.ellipse(c.x+8, c.y+8, 7*scale, 7, 0, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = "#fb8500"; ctx.lineWidth=2; ctx.stroke();
+        });
+
+        // Vẽ Rương
+        ctx.fillStyle = "#5d4037"; ctx.fillRect(chest.x, chest.y, chest.w, chest.h);
+        ctx.fillStyle = chest.opened ? "#d4a373" : "#8d6e63"; ctx.fillRect(chest.x, chest.y, chest.w, 8);
+        ctx.fillStyle = "#ffb703"; ctx.fillRect(chest.x+chest.w/2-4, chest.y+4, 8, 6);
+
+        // Vẽ Chìa Khóa
+        if (!levelKey.collected) {
+            levelKey.anim += 0.05; let bounce = Math.sin(levelKey.anim)*5;
+ctx.fillStyle = "#00e5ff"; ctx.fillRect(levelKey.x+2, levelKey.y+bounce, 14, 6); ctx.fillRect(levelKey.x+10, levelKey.y+bounce+6, 4, 8);
+        }
+
+        // Vẽ Quái Vật
+        monsters.forEach(m => {
+            ctx.save();
+            if (m.dir === -1) { ctx.translate(m.x + m.w/2, m.y + m.h/2); ctx.scale(-1, 1); ctx.translate(-(m.x + m.w/2), -(m.y + m.h/2)); }
+            if (m.type === 'frog') {
+                ctx.fillStyle = "#558b2f"; ctx.fillRect(m.x, m.y+6, m.w, m.h-6); ctx.fillStyle = "#8bc34a"; ctx.fillRect(m.x+2, m.y+8, m.w-4, m.h-12);
+                ctx.fillStyle = "#fff"; ctx.fillRect(m.x+4, m.y, 6, 6); ctx.fillRect(m.x+14, m.y, 6, 6);
+                ctx.fillStyle = "#d32f2f"; ctx.fillRect(m.x+6, m.y+2, 2, 2); ctx.fillRect(m.x+16, m.y+2, 2, 2);
+            } else if (m.type === 'boar') {
+                ctx.fillStyle = "#795548"; ctx.fillRect(m.x, m.y, m.w, m.h); ctx.fillStyle = "#d32f2f"; ctx.fillRect(m.x, m.y, 6, m.h-6);
+                ctx.fillStyle = "#fff"; ctx.fillRect(m.x+m.w-4, m.y+10, 6, 4);
+            } else if (m.type === 'golem') {
+                ctx.fillStyle = "#607d8b"; ctx.fillRect(m.x, m.y, m.w, m.h); ctx.fillStyle = "#90a4ae"; ctx.fillRect(m.x+4, m.y+4, m.w-8, 12);
+                ctx.fillStyle = "#ff5722"; ctx.fillRect(m.x+8, m.y+8, 6, 4); ctx.fillRect(m.x+m.w-14, m.y+8, 6, 4);
+            }
+            ctx.restore();
+        });
+
+        // Vẽ Cổng
+        ctx.fillStyle = levelKey.collected ? "#9c27b0" : "#311b92"; ctx.fillRect(endGate.x, endGate.y, endGate.w, endGate.h);
+        ctx.fillStyle = levelKey.collected ? "#e040fb" : "#1a237e"; ctx.fillRect(endGate.x+6, endGate.y+6, endGate.w-12, endGate.h-12);
+
+        // Vẽ Nhân vật
+        ctx.save(); ctx.translate(player.x + player.width/2, player.y + player.height/2);
+        if (player.facing === "left") ctx.scale(-1, 1);
+        let ox = -player.width/2; let oy = -player.height/2;
+        ctx.fillStyle = "#351c3a"; ctx.fillRect(ox+3, oy+20, player.width-6, 18);
+        ctx.fillStyle = "#9e4329"; ctx.fillRect(ox+4, oy+12, player.width-8, 8);
+        ctx.fillStyle = "#7a1a24"; ctx.fillRect(ox+4, oy+9, player.width-8, 4);
+        ctx.fillStyle = "#b55833"; ctx.fillRect(ox+2, oy, player.width-4, 4); ctx.fillRect(ox+4, oy+7, player.width-8, 2);
+        ctx.fillStyle = "#f3df93"; ctx.fillRect(ox+4, oy+4, player.width-8, 4);
+        ctx.fillStyle = "#733d1d"; ctx.fillRect(ox+player.width-2, oy+8, 4, 28);
+        ctx.fillStyle = "#ffb703"; ctx.fillRect(ox+player.width-4, oy+2, 8, 8);
+        ctx.restore();
+
+        // Particles
+        particles.forEach(p => { ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fillRect(p.x, p.y, 4, 4); ctx.globalAlpha = 1; });
+
+        // Giao diện UI
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; ctx.fillRect(10, 10, 600, 40);
+        ctx.fillStyle = "#fff"; ctx.font = "bold 16px Courier New";
+        ctx.fillText(`MÀN: ${currentLevel}/10`, 25, 36);
+ctx.fillText(`VÀNG: ${score}`, 140, 36);
+        ctx.fillStyle = levelKey.collected ? "#00e5ff" : "#ff5722"; ctx.fillText(levelKey.collected ? "🔑 CỬA MỞ" : "🔒 TÌM KHÓA", 260, 36);
+        ctx.fillStyle = "#ff1744"; ctx.fillText(`MẠNG: ${"❤️".repeat(lives)}`, 400, 36);
+
+        if (gameOver) {
+            ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#ff1744"; ctx.font = "bold 34px Courier New"; ctx.textAlign="center"; ctx.fillText("☠️ GAME OVER ☠️", canvas.width/2, canvas.height/2);
+            ctx.fillStyle = "#fff"; ctx.font = "16px Courier New"; ctx.fillText("Click chuột vào màn hình để chơi lại!", canvas.width/2, canvas.height/2 + 40);
+        }
+        if (gameWon) {
+            ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#ffb703"; ctx.font = "bold 34px Courier New"; ctx.textAlign="center"; ctx.fillText("👑 PHÁ ĐẢO THÀNH CÔNG 👑", canvas.width/2, canvas.height/2);
+            ctx.fillStyle = "#fff"; ctx.font = "16px Courier New"; ctx.fillText(`Điểm của bạn: ${score}`, canvas.width/2, canvas.height/2 + 40);
+        }
+    }
+
+    canvas.addEventListener("click", () => {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        if (gameOver || gameWon) restartGame();
+    });
+
+    function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+    initLevel(currentLevel); gameLoop();
+})();
+</script>
+</body>
+</html>
+"""
+
+HTML(colab_platformer_game_with_sound)
